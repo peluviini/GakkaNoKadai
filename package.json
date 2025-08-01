@@ -1,0 +1,14 @@
+{
+  "name": "gas",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^3.0.6-alpha",
+    "@types/google-apps-script": "^1.0.99",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
