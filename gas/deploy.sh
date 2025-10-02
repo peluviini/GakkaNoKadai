@@ -10,7 +10,7 @@ latest=$(echo "$deployments" | grep -oP '^[-] \K[A-Za-z0-9-_]+' | head -n 1)
 
 if [ -n "$latest" ]; then
   echo "Web App URL:"
-  echo "https://script.google.com/macros/s/$latest/exec"
+  echo "https://script.google.com/macros/s/$latest/exec?param=html"
 else
   echo "not found"
   exit 1

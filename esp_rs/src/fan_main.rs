@@ -14,8 +14,12 @@ use esp_idf_hal::{
 use esp_idf_hal::prelude::*;
 use std::{thread::sleep, time::Duration};
 
+
+const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbw60-x2Z54RDOVTEUCb5qilYx8lCIffOLPLozoKm8nWcfRrkNciNyADL6rWvRu-N22AzA/exec?param=get";
+
 fn main() -> Result<()> {
     esp_idf_svc::sys::link_patches();
+
     let peripherals = Peripherals::take().unwrap();
 
     let timer_fan = LedcTimerDriver::new(
@@ -31,7 +35,7 @@ fn main() -> Result<()> {
             .resolution(esp_idf_hal::ledc::Resolution::Bits16),
     )?;
 
-    let mut fan_vin = PinDriver::output(peripherals.pins.gpio12)?;
+    let mut fan_vin = PinDriver::output(peripherals.pins.gpio14)?;
     let mut pwm_fan = LedcDriver::new(
         peripherals.ledc.channel0,
         &timer_fan,
