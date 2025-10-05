@@ -15,7 +15,7 @@ use esp_idf_hal::prelude::*;
 use std::{thread::sleep, time::Duration};
 
 
-const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbw60-x2Z54RDOVTEUCb5qilYx8lCIffOLPLozoKm8nWcfRrkNciNyADL6rWvRu-N22AzA/exec?param=get";
+const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec?param=recieve";
 
 fn main() -> Result<()> {
     esp_idf_svc::sys::link_patches();

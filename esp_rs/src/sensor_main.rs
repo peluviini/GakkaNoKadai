@@ -27,9 +27,11 @@ use core::f32::consts::PI;
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use std::io::Read;
+
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbw60-x2Z54RDOVTEUCb5qilYx8lCIffOLPLozoKm8nWcfRrkNciNyADL6rWvRu-N22AzA/exec";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycby8D0VcTwNRlZ0MPskfAP5FgP_SFfzporLFQiRYREyPhuzRJfLr_QK-Cspy_Tf0hzIiUA/exec";
 
 fn main() -> Result<()> {
     link_patches();
@@ -151,7 +153,7 @@ fn angle_from_column_weighted(temps: &[f32; 64]) -> Option<f32> {
 fn post(client: &mut HttpClient<EspHttpConnection>, angle: f32) -> anyhow::Result<()> {
 
     let ts = SystemTime::now().duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs())
+        .map(|d: Duration| d.as_secs())
         .unwrap_or(0);
     let json = json!({
         "method": "post",
@@ -161,8 +163,6 @@ fn post(client: &mut HttpClient<EspHttpConnection>, angle: f32) -> anyhow::Resul
         }
     });
     let payload = &serde_json::to_vec(&json).unwrap();
-
-    use embedded_svc::utils::io;
 
     let content_length_header = format!("{}", payload.len());
     let headers = [
@@ -174,14 +174,22 @@ fn post(client: &mut HttpClient<EspHttpConnection>, angle: f32) -> anyhow::Resul
     request.write_all(payload)?;
     request.flush()?;
     info!("-> POST {}", URL_GAS);
+    
     let mut response = request.submit()?;
     let status = response.status();
     info!("<- status: {}", status);
 
-    let mut buf = [0u8; 1024];
-    let bytes_read = io::try_read_full(&mut response, &mut buf).map_err(|e| e.0)?;
-    info!("Read {} bytes", bytes_read);
-    match std::str::from_utf8(&buf[0..bytes_read]) {
+    let mut body_vec: Vec<u8> = Vec::new();
+    let mut tmp = [0u8; 512];
+    loop {
+        let n = response.read(&mut tmp)?;
+        if n == 0 {
+            break;
+        }
+        body_vec.extend_from_slice(&tmp[..n]);
+    }
+
+    match std::str::from_utf8(&body_vec) {
         Ok(body_string) => info!("Response body: {}", body_string),
         Err(e) => error!("Error decoding response body: {}", e),
     };
