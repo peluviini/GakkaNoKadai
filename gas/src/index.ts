@@ -32,19 +32,21 @@ function sendWebhook(message: string) {
 
 const powerOnCell = "H2";
 const targetTempCell = "I2";
-const TempCell = "J2";
-const targetAngleCell = "K2";
+const targetAngleCell = "J2";
 type headerJnSend = {
     power: "ON" | "OFF",
     targetTemp: number,
-    temperature: number,
     angle: number,
 };
 type headerJnSensor = {
     method: "post",
     content: "sensor" | "fan",
     params: {
-        angle: number,
+        timestamp?: Date,
+        temperature?: string,
+        humidity?: string,
+        wind_speed?: string,
+        angle?: string,
     }
 };
 
@@ -53,28 +55,24 @@ function doGet(e: GoogleAppsScript.Events.DoGet) {
 
     if (e.parameter.param === "html") {
         return HtmlService.createTemplateFromFile("index").evaluate();
-    } else if (e.parameter.param === "get") {
+    } else if (e.parameter.param === "recieve") {
         const ss = SpreadsheetApp.openByUrl(sheetUrl)
         const sheet = ss.getSheets()[0];
         const power = sheet.getRange(powerOnCell);
         const targetTemp = sheet.getRange(targetTempCell);
-        const temp = sheet.getRange(TempCell);
         const angle = sheet.getRange(targetAngleCell);
 
         let params: headerJnSend = {
             power: power.getValue(),
             targetTemp: targetTemp.getValue(),
-            temperature: temp.getValue(),
             angle: angle.getValue(),
         }
 
-        return params;
+        return JSON.stringify(params);
     } else {}
-
-    return HtmlService.createTemplateFromFile("index").evaluate();
 }
 
-function doPost (e: GoogleAppsScript.Events.DoPost) {
+function doPost(e: GoogleAppsScript.Events.DoPost) {
     try {
         let body: headerJnSensor = JSON.parse(e.postData.contents);
         const ss = SpreadsheetApp.openByUrl(sheetUrl);
@@ -84,11 +82,22 @@ function doPost (e: GoogleAppsScript.Events.DoPost) {
             if (body.content === "sensor") {
                 const params: sheet = {
                     timestamp: new Date(),
-                    temperature: e.parameter.temperature || "",
-                    humidity: e.parameter.humidity || "",
-                    wind_speed: e.parameter.wind_speed || "",
-                    angle: e.parameter.angle || "",
+                    temperature: "",
+                    humidity: "",
+                    wind_speed: "",
+                    angle: body.params.angle || "0",
                 };
+                sheet.appendRow(Object.values(params));
+                const angleCell = sheet.getRange(targetAngleCell);
+                angleCell.setValue(body.params.angle || 0);
+            } else if (body.content === "fan") {
+                const params: sheet = {
+                    timestamp: new Date(),
+                    temperature: body.params.temperature || "",
+                    humidity: body.params.humidity || "",
+                    wind_speed: body.params.wind_speed || "",
+                    angle: "",
+                }
                 sheet.appendRow(Object.values(params));
             }
         }
