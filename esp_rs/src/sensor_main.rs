@@ -10,28 +10,26 @@ use std::time::Duration;
 use core::convert::TryInto;
 
 use embedded_svc::{
-    http::{client::Client as HttpClient, Method},
+    http::{client::Client as HttpClient},
     io::Write,
-    utils::io,
     wifi::{AuthMethod, ClientConfiguration},
 };
 
 use esp_idf_svc::http::client::EspHttpConnection;
-use esp_idf_svc::log::EspLogger;
 use esp_idf_svc::wifi::{BlockingWifi, EspWifi};
 use esp_idf_svc::{eventloop::EspSystemEventLoop, nvs::EspDefaultNvsPartition};
 
 use log::{error, info};
 
 use core::f32::consts::PI;
+
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use std::io::Read;
 
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycby8D0VcTwNRlZ0MPskfAP5FgP_SFfzporLFQiRYREyPhuzRJfLr_QK-Cspy_Tf0hzIiUA/exec";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbxAZuuMf1YV7tr9ESOnFpejUin488bMCvWWBuS4zBLB89zmvKsiwr19o9ySxy1oQMhXTw/exec";
 
 fn main() -> Result<()> {
     link_patches();
@@ -51,7 +49,6 @@ fn main() -> Result<()> {
             use_global_ca_store: true,
             crt_bundle_attach: Some(esp_idf_sys::esp_crt_bundle_attach),
             ..Default::default()
-            
         }
     )?);
 
@@ -152,7 +149,7 @@ fn angle_from_column_weighted(temps: &[f32; 64]) -> Option<f32> {
 
 fn post(client: &mut HttpClient<EspHttpConnection>, angle: f32) -> anyhow::Result<()> {
 
-    let ts = SystemTime::now().duration_since(UNIX_EPOCH)
+    let _ = SystemTime::now().duration_since(UNIX_EPOCH)
         .map(|d: Duration| d.as_secs())
         .unwrap_or(0);
     let json = json!({

@@ -55,7 +55,7 @@ function doGet(e: GoogleAppsScript.Events.DoGet) {
 
     if (e.parameter.param === "html") {
         return HtmlService.createTemplateFromFile("index").evaluate();
-    } else if (e.parameter.param === "recieve") {
+    } else if (e.parameter.param === "receive") {
         const ss = SpreadsheetApp.openByUrl(sheetUrl)
         const sheet = ss.getSheets()[0];
         const power = sheet.getRange(powerOnCell);
@@ -68,8 +68,14 @@ function doGet(e: GoogleAppsScript.Events.DoGet) {
             angle: angle.getValue(),
         }
 
-        return JSON.stringify(params);
-    } else {}
+        try {
+            return ContentService.createTextOutput(JSON.stringify(params));
+        } catch (err) {
+            return ContentService.createTextOutput("errorrrr");
+        }
+    } else {
+        return ContentService.createTextOutput("e");
+    }
 }
 
 function doPost(e: GoogleAppsScript.Events.DoPost) {
@@ -110,7 +116,7 @@ function toggleIsOn () {
     const cell = sheet.getRange(powerOnCell);
     const currentState = cell.getValue();
 
-    cell.setValue(currentState === "ON" ? "OFF" : "ON");
+    cell.setValue(currentState === "ON" ? "ON" : "OFF");
 
     sendWebhook(currentState);
 }
