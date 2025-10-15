@@ -22,7 +22,7 @@ function doGet(e) {
     if (e.parameter.param === "html") {
         return HtmlService.createTemplateFromFile("index").evaluate();
     }
-    else if (e.parameter.param === "recieve") {
+    else if (e.parameter.param === "receive") {
         var ss = SpreadsheetApp.openByUrl(sheetUrl);
         var sheet = ss.getSheets()[0];
         var power = sheet.getRange(powerOnCell);
@@ -33,9 +33,16 @@ function doGet(e) {
             targetTemp: targetTemp.getValue(),
             angle: angle.getValue(),
         };
-        return JSON.stringify(params);
+        try {
+            return ContentService.createTextOutput(JSON.stringify(params));
+        }
+        catch (err) {
+            return ContentService.createTextOutput("errorrrr");
+        }
     }
-    else { }
+    else {
+        return ContentService.createTextOutput("e");
+    }
 }
 function doPost(e) {
     try {
@@ -74,6 +81,6 @@ function toggleIsOn() {
     var sheet = ss.getSheets()[0];
     var cell = sheet.getRange(powerOnCell);
     var currentState = cell.getValue();
-    cell.setValue(currentState === "ON" ? "OFF" : "ON");
+    cell.setValue(currentState === "ON" ? "ON" : "OFF");
     sendWebhook(currentState);
 }
