@@ -1,6 +1,5 @@
 
 use anyhow::Result;
-use esp_idf_sys::link_patches;
 use esp_idf_hal::{
     delay::BLOCK, i2c::{I2cConfig, I2cDriver}, peripherals::Peripherals, prelude::*
 };
@@ -10,7 +9,7 @@ use std::time::Duration;
 use core::convert::TryInto;
 
 use embedded_svc::{
-    http::{client::Client as HttpClient},
+    http::client::Client as HttpClient,
     io::Write,
     wifi::{AuthMethod, ClientConfiguration},
 };
@@ -29,11 +28,23 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbxAZuuMf1YV7tr9ESOnFpejUin488bMCvWWBuS4zBLB89zmvKsiwr19o9ySxy1oQMhXTw/exec";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec";
 
 fn main() -> Result<()> {
-    link_patches();
+    esp_idf_svc::sys::link_patches();
+    use std::result::Result::Ok;
+    match run() {
+        Ok(_) => Ok(()),
+        Err(_) => {
+            std::thread::sleep(Duration::from_secs(60));
+            
+            unsafe { esp_idf_sys::esp_restart(); }
+        },
+    }
+    
+}
 
+fn run() -> Result<()> {
     let peripherals = Peripherals::take().unwrap();
     let sys_loop = EspSystemEventLoop::take()?;
     let nvs = EspDefaultNvsPartition::take()?;
