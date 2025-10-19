@@ -1,19 +1,16 @@
 
-use anyhow::Result;
-use esp_idf_svc::{
-  hal::{gpio::PinDriver, peripherals::Peripherals},
-};
+use anyhow::{Ok, Result};
+use esp_idf_hal::gpio::PinDriver;
+use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::{
-    delay::{self},
-    i2c::{I2cConfig, I2cDriver},
-    ledc::{
+    delay::{self}, gpio::IOPin, /*i2c::{I2cConfig, I2cDriver},*/ ledc::{
         config::TimerConfig, LedcDriver, LedcTimerDriver
-    },
-    units::Hertz
+    }, units::Hertz
 };
-use esp_idf_hal::prelude::*;
+//use esp_idf_hal::prelude::*;
 use std::time::Duration;
-use bme280::i2c::BME280;
+use dht11::Dht11;
+//use bme280::i2c::BME280;
 
 use serde::{Deserialize, Serialize};
 
@@ -47,7 +44,8 @@ enum Power {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 struct ParamsSent {
     power: Power,
-    targetTemp: u32,
+    #[serde(rename = "targetTemp")]
+    target_temp: u32,
     angle: f32,
 }
 impl Default for Power {
@@ -56,14 +54,26 @@ impl Default for Power {
     }
 }
 
-const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbxAZuuMf1YV7tr9ESOnFpejUin488bMCvWWBuS4zBLB89zmvKsiwr19o9ySxy1oQMhXTw/exec?param=receive";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbxAZuuMf1YV7tr9ESOnFpejUin488bMCvWWBuS4zBLB89zmvKsiwr19o9ySxy1oQMhXTw/exec";
+const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec?param=receive";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec";
 
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
 
 fn main() -> Result<()> {
     esp_idf_svc::sys::link_patches();
+    use std::result::Result::Ok;
+    match run() {
+        Ok(_) => Ok(()),
+        Err(_) => {
+            std::thread::sleep(Duration::from_secs(60));
+            
+            unsafe { esp_idf_sys::esp_restart(); }
+        },
+    }
+}
+
+fn run() -> Result<()> {
 
     let peripherals = Peripherals::take().unwrap();
     let sys_loop = EspSystemEventLoop::take()?;
@@ -97,7 +107,7 @@ fn main() -> Result<()> {
             .resolution(esp_idf_hal::ledc::Resolution::Bits16),
     )?;
 
-    let mut fan_vin = PinDriver::output(peripherals.pins.gpio14)?;
+    let mut fan_vin = PinDriver::output(peripherals.pins.gpio32)?;
     let mut servo_vin = PinDriver::output(peripherals.pins.gpio12)?;
     let mut pwm_fan = LedcDriver::new(
         peripherals.ledc.channel0,
@@ -120,7 +130,10 @@ fn main() -> Result<()> {
     //let duty_max = (max_duty_servo as f32 * (2500.0 / period_us)) as u32;
     
     
-    let sda = peripherals.pins.gpio22;
+    let dht_pin = PinDriver::input_output_od(peripherals.pins.gpio21.downgrade()).unwrap();
+    let mut dht = Dht11::new(dht_pin);
+    let mut delay = delay::Ets;
+    /*let sda = peripherals.pins.gpio22;
     let scl = peripherals.pins.gpio21;
     let config = I2cConfig::new()
         .baudrate(100.kHz().into())
@@ -130,7 +143,7 @@ fn main() -> Result<()> {
 
     let mut bmp280 = BME280::new_primary(i2c);
     let mut delay = delay::Ets;
-    bmp280.init(&mut delay).unwrap();
+    bmp280.init(&mut delay).unwrap();*/
 
     
 
@@ -138,21 +151,37 @@ fn main() -> Result<()> {
 
     loop {
 
-        let bmp = bmp280.measure(&mut delay).unwrap();
+        let mut temperature = 0.;
+        let mut humidity = 0.;
+        //let dht_data = dht.perform_measurement(&mut delay).unwrap();
+        match dht.perform_measurement(&mut delay) {
+            Ok(m) => {
+                
+                println!(
+                    "temp: {}C, humidity: {}%",
+                    (m.temperature as f32 / 10.0),
+                    (m.humidity as f32 / 10.0)
+                );
+                temperature = m.temperature as f32 / 10.;
+                humidity = m.humidity as f32 / 10.;
+            }
+            Err(e) => println!("{:?}", e),
+        }
+        /*let bmp = bmp280.measure(&mut delay).unwrap();
          println!(
             "Relative Humidity = {:3.2} %,   Temperature = {:3.2} °C,   Pressure = {:4.2} hPa",
             bmp.humidity,
             bmp.temperature,
             bmp.pressure / 100_f32
-        );
+        );*/
 
         use std::result::Result::Ok;
         match get(&mut client) {
             Ok(d) => {
-                println!("ok");
-                datas = d.clone();
-                println!("{:?} : {:?} : {:?}", datas.power, datas.targetTemp, datas.angle);
-            }
+                            println!("ok");
+                            datas = d.clone();
+                            println!("{:?} : {:?} : {:?}", datas.power, datas.target_temp, datas.angle);
+                        }
             Err(e) => {
                 println!("err: {:?}", e);
             }
@@ -162,17 +191,19 @@ fn main() -> Result<()> {
             fan_vin.set_high()?;
             servo_vin.set_high()?;
 
-            let duty_servo = (max_duty_servo as f32 * ((1500. + (datas.angle / (PI / 4.) * 1000.)) / period_us)) as u32;
+            let duty_servo = (max_duty_servo as f32 * ((1500. + (datas.angle / (PI / 2.) * 1000.)) / period_us)) as u32;
             
             let wind_speed = {
-                let e = (bmp.humidity / 100.) * 6.105 * E.powf((17.27 * bmp.temperature) / (237.7 + bmp.temperature));
-                let v = (datas.targetTemp as f32 - bmp.temperature - 0.33 * e + 4.) / 0.7;
-                v.max(0.0)
-            };
+                            //let temperature = dht_data.temperature as f32;
+                            //let humidity = dht_data.humidity as f32;
+                            let e = (humidity / 100.0) * 6.105 * E.powf((17.27 * temperature) / (237.7 + temperature));
+                            let v = (temperature + 0.33 * e - (datas.target_temp as f32) - 4.0) / 0.7;
+                            v.max(0.0)
+                        };
             println!("wind: {}", wind_speed);
             let duty_fan = {
-                let q_max = 146.9 / 3600.;
-                let v_max = q_max / 0.01;
+                let q_max = 146.9;
+                let v_max = q_max;
 
                 let max = max_duty_fan as f32;
                 let ratio = wind_speed / v_max;
@@ -191,7 +222,7 @@ fn main() -> Result<()> {
             println!("pwm fan: {}", duty_fan);
             pwm_fan.set_duty(duty_fan as u32)?;
             
-            post(&mut client, bmp.temperature, bmp.humidity, wind_speed).unwrap();
+            post(&mut client, temperature as f32, humidity as f32, wind_speed).unwrap();
 
         } else {
 
@@ -202,6 +233,7 @@ fn main() -> Result<()> {
 
         std::thread::sleep(Duration::from_millis(50));
     }
+
 }
 
 fn connect_wifi(wifi: &mut BlockingWifi<EspWifi<'static>>) -> anyhow::Result<()> {
@@ -277,7 +309,7 @@ fn post(
         .unwrap_or(0);
     let json = json!({
         "method": "post",
-        "content": "sensor",
+        "content": "fan",
         "params": {
             "temperature": temperature,
             "humidity": humidity,
@@ -311,6 +343,7 @@ fn post(
         body_vec.extend_from_slice(&tmp[..n]);
     }
 
+    use std::result::Result::Ok;
     match std::str::from_utf8(&body_vec) {
         Ok(body_string) => info!("Response body: {}", body_string),
         Err(e) => error!("Error decoding response body: {}", e),
