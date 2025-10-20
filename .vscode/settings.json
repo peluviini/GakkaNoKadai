@@ -1,0 +1,53 @@
+{
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "git.autofetch": true,
+    "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\gcc.exe",
+    "window.zoomLevel": -1,
+    "git.suggestSmartCommit": false,
+    "security.allowedUNCHosts": [
+        "wsl.localhost"
+    ],
+    "git.openRepositoryInParentFolders": "never",
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off"
+    },
+    "workbench.settings.applyToAllProfiles": [],
+    "settingsSync.ignoredSettings": [],
+    "cmake.showOptionsMovedNotification": false,
+    "cmake.pinnedCommands": [
+        "workbench.action.tasks.configureTaskRunner",
+        "workbench.action.tasks.runTask"
+    ],
+    "remote.autoForwardPortsSource": "hybrid",
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "deno.enable": false,
+    "deno.env": {},
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorTheme": "Running Penguin",
+    "biome.suggestInstallingGlobally": false,
+    "github.copilot.enable": {
+        "*": false
+    },
+    "rust-analyzer.diagnostics.disabled": [
+        "unlinked-file"
+    ],
+    "rust-analyzer.diagnostics.experimental.enable": true,
+    "rust-analyzer.linkedProjects": [
+        "/home/peluviini/illyriallaillalla/hands_on_iot/esp_rs/Cargo.toml"
+    ],
+    "rust-analyzer.cargo.loadOutDirsFromCheck": true,
+    "rust-analyzer.procMacro.enable": true,
+    "rust-analyzer.cargo.runBuildScripts": true,
+    "rust-analyzer.cargo.allFeatures": true
+}
