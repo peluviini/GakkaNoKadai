@@ -19,6 +19,9 @@ To deploy and see the page
 ### arduino
 Trying to use esp-idf of rust
 
+generate project->
+> cargo generate esp-rs/esp-idf-template cargo
+
 
 ### If you have any further inquiries, please feel free to send me massage on
 
