@@ -54,8 +54,8 @@ impl Default for Power {
     }
 }
 
-const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec?param=receive";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec";
+const URL_GAS_RECIVE: &'static str = "https://script.google.com/macros/s/AKfycbzMLmdW2l68EikBVGH7KUx5jfYs_iyIWDgzdVU3Me7M8M3maGz8mzLVUVng2pvYQw85JQ/exec?param=receive";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzMLmdW2l68EikBVGH7KUx5jfYs_iyIWDgzdVU3Me7M8M3maGz8mzLVUVng2pvYQw85JQ/exec";
 
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
@@ -66,7 +66,7 @@ fn main() -> Result<()> {
     match run() {
         Ok(_) => Ok(()),
         Err(_) => {
-            std::thread::sleep(Duration::from_secs(60));
+            std::thread::sleep(Duration::from_secs(5));
             
             unsafe { esp_idf_sys::esp_restart(); }
         },
@@ -261,7 +261,8 @@ fn connect_wifi(wifi: &mut BlockingWifi<EspWifi<'static>>) -> anyhow::Result<()>
     Ok(())
 }
 fn get(client: &mut HttpClient<EspHttpConnection>) -> anyhow::Result<ParamsSent> {
-    let headers = [("accept", "application/json")];
+    println!("get");
+    let headers = [("accept", "application/json"), ("connection", "close")];
 
     let request = client.request(Method::Get, URL_GAS_RECIVE, &headers)?;
     info!("-> GET {URL_GAS_RECIVE}");
@@ -293,6 +294,8 @@ fn get(client: &mut HttpClient<EspHttpConnection>) -> anyhow::Result<ParamsSent>
     //println!("value: {:?}", value);
 
     let params = serde_json::from_value(value)?;
+
+    println!("get end");
     Ok(params)
 }
 

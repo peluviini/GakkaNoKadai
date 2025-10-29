@@ -28,7 +28,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzVrJa80ZfQUyTxWgsJMkbTNdFpBfamwyeFIaKuuSQm/exec";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzMLmdW2l68EikBVGH7KUx5jfYs_iyIWDgzdVU3Me7M8M3maGz8mzLVUVng2pvYQw85JQ/exec";
 
 fn main() -> Result<()> {
     esp_idf_svc::sys::link_patches();
@@ -36,7 +36,7 @@ fn main() -> Result<()> {
     match run() {
         Ok(_) => Ok(()),
         Err(_) => {
-            std::thread::sleep(Duration::from_secs(60));
+            std::thread::sleep(Duration::from_secs(5));
             
             unsafe { esp_idf_sys::esp_restart(); }
         },
@@ -106,7 +106,7 @@ fn run() -> Result<()> {
         }
         println!("----------------------------");
 
-        thread::sleep(Duration::from_millis(800));  
+        thread::sleep(Duration::from_millis(50));  
     }
 }
 fn connect_wifi(wifi: &mut BlockingWifi<EspWifi<'static>>) -> anyhow::Result<()> {
@@ -154,7 +154,9 @@ fn angle_from_column_weighted(temps: &[f32; 64]) -> Option<f32> {
     let left = -PI / 3.0_f32;
     let right =  PI / 3.0_f32;
     let frac = col_avg / 8.0;
-    let angle = left + frac * (right - left);
+    let mut angle = left + frac * (right - left);
+    angle *= 15.;
+
     Some(angle)
 }
 
