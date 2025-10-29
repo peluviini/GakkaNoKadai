@@ -28,7 +28,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const SSID: &'static str = "pelu's Nothing Phone";
 const PASSWORD: &'static str = "kws8b8tj";
-const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbzMLmdW2l68EikBVGH7KUx5jfYs_iyIWDgzdVU3Me7M8M3maGz8mzLVUVng2pvYQw85JQ/exec";
+const URL_GAS: &'static str = "https://script.google.com/macros/s/AKfycbyzJ4FzcEer9bqgk3ezTEBg1AbRXzql5Z2MJARKLkfHw48nOaOzjNBcAhAJzpFwbsGyZg/exec";
 
 fn main() -> Result<()> {
     esp_idf_svc::sys::link_patches();
