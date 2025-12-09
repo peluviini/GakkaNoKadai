@@ -176,12 +176,12 @@ fn run() -> Result<()> {
         );*/
 
         use std::result::Result::Ok;
-        match get(&mut client) {
+        match get(/*&mut client*/) {
             Ok(d) => {
-                            println!("ok");
-                            datas = d.clone();
-                            println!("{:?} : {:?} : {:?}", datas.power, datas.target_temp, datas.angle);
-                        }
+                println!("ok");
+                datas = d.clone();
+                println!("{:?} : {:?} : {:?}", datas.power, datas.target_temp, datas.angle);
+            }
             Err(e) => {
                 println!("err: {:?}", e);
             }
@@ -222,7 +222,7 @@ fn run() -> Result<()> {
             println!("pwm fan: {}", duty_fan);
             pwm_fan.set_duty(duty_fan as u32)?;
             
-            post(&mut client, temperature as f32, humidity as f32, wind_speed).unwrap();
+            post(/*&mut client,*/ temperature as f32, humidity as f32, wind_speed).unwrap();
 
         } else {
 
@@ -260,7 +260,18 @@ fn connect_wifi(wifi: &mut BlockingWifi<EspWifi<'static>>) -> anyhow::Result<()>
 
     Ok(())
 }
-fn get(client: &mut HttpClient<EspHttpConnection>) -> anyhow::Result<ParamsSent> {
+fn get(/*client: &mut HttpClient<EspHttpConnection>*/) -> anyhow::Result<ParamsSent> {
+
+    use esp_idf_svc::http::client::Configuration;
+    let mut client = HttpClient::wrap(EspHttpConnection::new(
+        &Configuration {
+            use_global_ca_store: true,
+            crt_bundle_attach: Some(esp_idf_sys::esp_crt_bundle_attach),
+            buffer_size_tx: Some(4096),
+            ..Default::default()
+        }
+    )?);
+
     println!("get");
     let headers = [("accept", "application/json"), ("connection", "close")];
 
@@ -301,11 +312,21 @@ fn get(client: &mut HttpClient<EspHttpConnection>) -> anyhow::Result<ParamsSent>
 
 
 fn post(
-    client: &mut HttpClient<EspHttpConnection>,
+    /*client: &mut HttpClient<EspHttpConnection>,*/
     temperature: f32,
     humidity: f32,
     wind_speed: f32,
 ) -> anyhow::Result<()> {
+
+    use esp_idf_svc::http::client::Configuration;
+    let mut client = HttpClient::wrap(EspHttpConnection::new(
+        &Configuration {
+            use_global_ca_store: true,
+            crt_bundle_attach: Some(esp_idf_sys::esp_crt_bundle_attach),
+            buffer_size_tx: Some(4096),
+            ..Default::default()
+        }
+    )?);
 
     let _ = SystemTime::now().duration_since(UNIX_EPOCH)
         .map(|d: Duration| d.as_secs())
