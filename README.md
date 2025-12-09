@@ -22,12 +22,6 @@ Trying to use esp-idf of rust
 generate project->
 > cargo generate esp-rs/esp-idf-template cargo
 
-
-### If you have any further inquiries, please feel free to send me massage on
-
-https://discord.com/api/webhooks/1392685132707528736/gjHwgfq3JttlRXPBOBvN0nqJNToUlo3RwN1yIiuz0GTWXuP8ir7Iq7CA3Ax1XhFVODBt
-
-
 ### memoranda
 [GoogleSheet](https://docs.google.com/spreadsheets/d/12KPpMY7eV-cPQyw1QVUG0R_QObp-cpFYQhn_H8V2V_I/edit?gid=0#gid=0)
 
