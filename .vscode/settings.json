@@ -49,5 +49,10 @@
     "rust-analyzer.cargo.loadOutDirsFromCheck": true,
     "rust-analyzer.procMacro.enable": true,
     "rust-analyzer.cargo.runBuildScripts": true,
-    "rust-analyzer.cargo.allFeatures": true
+    "rust-analyzer.cargo.allFeatures": true,
+
+
+
+    "markdown-pdf.footerTemplate": " ",
+    "markdown-pdf.headerTemplate": " ",
 }
