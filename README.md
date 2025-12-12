@@ -1,4 +1,4 @@
-## GAS + Arduino kinda IOT Project (in progress)
+## GAS + Arduino kinda IOT Project
 I'm making automatic controled fan that turns towards the hottest direction(assuming Human).
 
 The fun's speeed is adjusted by caluculated Appearannce Temperature.
