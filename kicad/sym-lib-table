@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Zatta")(type "KiCad")(uri "${KIPRJMOD}/Zatta.kicad_sym")(options "")(descr ""))
+)

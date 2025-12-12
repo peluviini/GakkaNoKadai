@@ -55,4 +55,5 @@
 
     "markdown-pdf.footerTemplate": " ",
     "markdown-pdf.headerTemplate": " ",
+    "markdown-pdf.outputDirectory": "/home/peluviini/illyriallaillalla/hands_on_iot/pdf",
 }

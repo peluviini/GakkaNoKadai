@@ -11,10 +11,14 @@
 
 <img src="assets/images/AMG8833_appearance.jpg" width="300">
 
+図2.1, 赤外線アレイセンサー
+
 [AMG8833使用 赤外線アレイセンサー(Grid-EYE)モジュール](https://akizukidenshi.com/catalog/g/g116737/)
 
 
 ![特性:画素配列と視野角](assets/images/AMG8833_property.png)
+
+図2.2, 赤外線アレイセンサーのセンサー取得値概要
 
 ### 使用概略としては,値を縦方向に分割し方向ごとの合計値を計算,比較して熱の集まる方向として角度(ラジアン値)を判定する.
 
@@ -24,6 +28,8 @@
 ### 温度及び湿度を取得するセンサー.
 
 <img src="assets/images/DHT11_appearance.jpg" width="300">
+
+図2.3, 温湿度センサー
 
 [温湿度センサー モジュール DHT11](https://akizukidenshi.com/catalog/g/g107003/)
 
@@ -95,9 +101,13 @@
 ## 本体の回路図
 ![回路図:本体](assets/images/circuit_diagram_main.png)
 
-## センサー機の回路図 / 実装した回路
+図3.1, ファン側回路の回路図
+
+## センサー機の回路図 / 実装した回路(本体)
 <img src="assets/images/circuit_diagram_sensor.png" width="350">
 <img src="assets/images/THE_DELIVERABLE_CIRCUIT.jpg" width="560">
+
+図3.2, センサー機の回路図と実装後の本体回路
 
 <br>
 
@@ -162,11 +172,15 @@ flowchart BT
 
 ```
 
+図3.3, ワークフロー概要図
+
 <br>
 
 ## 3.6, 実際の動作例
 
 ![概略図](assets/images/autofa-ton_overview.png)
+
+図3.4, デバイスの動作概略図
 
 <br>
 
